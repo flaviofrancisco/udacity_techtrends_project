@@ -1,0 +1,33 @@
+namespace: sandbox
+
+service:
+  port: 5111
+  targetPort: 5111
+  protocol: TCP
+  type: ClusterIP
+
+image:
+  repository: ffrancisco/techtrends
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 3
+
+resources:
+  requests:
+    memory: 64Mi
+    cpu: 250m
+  limits:
+    memory: 90Mi
+    cpu: 300m
+
+containerPort: 5111
+
+livenessProbe:
+  path: /healthz
+  port: containerPort
+
+readinessProbe:
+  path: /healthz
+  port: containerPort
+   
