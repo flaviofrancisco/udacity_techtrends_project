@@ -1,7 +1,6 @@
 import sqlite3
-
-from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
-from werkzeug.exceptions import abort
+import logging
+from flask import Flask, json, render_template, request, url_for, redirect, flash
 
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
@@ -16,6 +15,10 @@ def get_post(post_id):
     post = connection.execute('SELECT * FROM posts WHERE id = ?',
                         (post_id,)).fetchone()
     connection.close()
+
+    # Log post retrieval
+    app.logger.info('Article "%s" retrieved!', post['title'])
+
     return post
 
 # Define the Flask application
@@ -29,6 +32,27 @@ def index():
     posts = connection.execute('SELECT * FROM posts').fetchall()
     connection.close()
     return render_template('index.html', posts=posts)
+
+@app.route('/healthz')
+def healthz():
+    response = app.response_class(
+        response=json.dumps({"result":"OK - healthy"}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@app.route('/metrics')
+def metrics():
+    connection = get_db_connection()
+    posts = connection.execute('SELECT * FROM posts').fetchall()
+    connection.close()
+    response = app.response_class(
+        response=json.dumps({"db_connection_count":1,"post_count":len(posts)}),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
 
 # Define how each individual article is rendered 
 # If the post ID is not found a 404 page is shown
@@ -61,10 +85,14 @@ def create():
             connection.commit()
             connection.close()
 
+            # Log new article creation
+            app.logger.info('Article "%s" created!', title)
+            
             return redirect(url_for('index'))
 
     return render_template('create.html')
 
 # start the application on port 3111
 if __name__ == "__main__":
+   logging.basicConfig(filename='app.log',level=logging.DEBUG)
    app.run(host='0.0.0.0', port='3111')
