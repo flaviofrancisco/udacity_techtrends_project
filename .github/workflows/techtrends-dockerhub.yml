@@ -11,6 +11,11 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      -        
+        name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
       -
         name: Checkout
         uses: actions/checkout@v2        
