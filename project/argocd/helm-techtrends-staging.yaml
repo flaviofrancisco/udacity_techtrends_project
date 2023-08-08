@@ -12,6 +12,6 @@ spec:
     helm:
       valueFiles:
       - values-staging.yaml
-    path: helm 
-    repoURL: https://github.com/flaviofrancisco/udacity_techtrends_project
+    path: project/helm 
+    repoURL: https://github.com/flaviofrancisco/udacity_techtrends_project/tree/main/project
     targetRevision: HEAD
