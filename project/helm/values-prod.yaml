@@ -25,9 +25,9 @@ containerPort: 7111
 
 livenessProbe:
   path: /healthz
-  port: containerPort
+  port: 7111
 
 readinessProbe:
   path: /healthz
-  port: containerPort
+  port: 7111
    
