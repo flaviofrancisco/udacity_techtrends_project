@@ -1,32 +1,15 @@
 namespace:
-  name: sandbox 
+  name: staging 
 
 service:
-  port: 5111
-  targetPort: 5111
-  protocol: TCP
-  type: ClusterIP
-
-image:
-  repository: ffrancisco/techtrends
-  tag: latest
-  pullPolicy: IfNotPresent
+  port: 5111 
 
 replicaCount: 3
 
 resources:
   requests:
-    memory: 64Mi
-    cpu: 250m
-  limits:
     memory: 90Mi
     cpu: 300m
-
-containerPort: 5111
-
-livenessProbe:
-  path: /healthz  
-
-readinessProbe:
-  path: /healthz 
-   
+  limits:
+    memory: 128Mi
+    cpu: 500m

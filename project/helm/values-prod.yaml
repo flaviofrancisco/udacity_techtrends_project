@@ -1,16 +1,8 @@
 namespace:
-  name: sandbox
+  name: prod 
 
 service:
-  port: 7111
-  targetPort: 7111
-  protocol: TCP
-  type: ClusterIP
-
-image:
-  repository: ffrancisco/techtrends
-  tag: latest
-  pullPolicy: Always
+  port: 7111 
 
 replicaCount: 5
 
@@ -20,15 +12,5 @@ resources:
     cpu: 350m
   limits:
     memory: 256Mi
-    cpu: 350m
-
-containerPort: 7111
-
-livenessProbe:
-  path: /healthz  
-  port: 7111
-
-readinessProbe:
-  path: /healthz
-  port: 7111
+    cpu: 500m
    

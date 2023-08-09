@@ -1,6 +1,9 @@
 import sqlite3
 import logging
+import sys
 from flask import Flask, json, render_template, request, url_for, redirect, flash
+
+db_connection_count = 0
 
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
@@ -11,11 +14,12 @@ def get_db_connection():
 
 # Function to get a post using its ID
 def get_post(post_id):
+    global db_connection_count
     connection = get_db_connection()
     post = connection.execute('SELECT * FROM posts WHERE id = ?',
                         (post_id,)).fetchone()
-    connection.close()
-
+    connection.close()    
+    db_connection_count += 1
     # Log post retrieval
     app.logger.info('Article "%s" retrieved!', post['title'])
 
@@ -28,9 +32,11 @@ app.config['SECRET_KEY'] = 'your secret key'
 # Define the main route of the web application 
 @app.route('/')
 def index():
+    global db_connection_count
     connection = get_db_connection()
     posts = connection.execute('SELECT * FROM posts').fetchall()
     connection.close()
+    db_connection_count += 1
     return render_template('index.html', posts=posts)
 
 @app.route('/healthz')
@@ -45,10 +51,10 @@ def healthz():
 @app.route('/metrics')
 def metrics():
     connection = get_db_connection()
-    posts = connection.execute('SELECT * FROM posts').fetchall()
-    connection.close()
+    posts = connection.execute('SELECT * FROM posts').fetchall()    
+    connection.close()    
     response = app.response_class(
-        response=json.dumps({"db_connection_count":1,"post_count":len(posts)}),
+        response=json.dumps({"db_connection_count": db_connection_count,"post_count":len(posts)}),
         status=200,
         mimetype='application/json'
     )
@@ -72,6 +78,7 @@ def about():
 # Define the post creation functionality 
 @app.route('/create', methods=('GET', 'POST'))
 def create():
+    global db_connection_count
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
@@ -84,7 +91,7 @@ def create():
                          (title, content))
             connection.commit()
             connection.close()
-
+            db_connection_count += 1
             # Log new article creation
             app.logger.info('Article "%s" created!', title)
             
@@ -94,5 +101,5 @@ def create():
 
 # start the application on port 3111
 if __name__ == "__main__":
-   logging.basicConfig(filename='app.log',level=logging.DEBUG)
+   logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(sys.stdout), logging.StreamHandler(sys.stderr)])
    app.run(host='0.0.0.0', port='3111')
